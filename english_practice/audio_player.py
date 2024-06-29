@@ -56,6 +56,6 @@ class AudioPlayer:
         except Exception as e:
             print(f"{Fore.RED}Unexpected error: {e}{Style.RESET_ALL}")
         finally:
-            pygame.mixer.music.unload()
+            pygame.mixer.music.stop()
             if audio_buffer:
                 audio_buffer.close()

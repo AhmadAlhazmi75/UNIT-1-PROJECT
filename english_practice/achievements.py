@@ -13,35 +13,33 @@ class Achievements:
         """
         try:
             self.user_id = GoogleAuthenticator().get_stored_user_id()
-            self.all_achievements = load_json('achievement.json')
-            self.operations_count = self.__load_counter('operations_counter.json', "operations")
-            self.streak_count = self.__load_counter('streak_counter.json', "streak")
+            self.all_achievements = load_json('achievement.json') or {}
+            self.counters = self.__load_counters()
             self.achievements = self.__get_unlocked_achievements()
         except Exception as e:
             print(f"Error initializing Achievements: {e}")
             self.user_id = None
             self.all_achievements = {}
-            self.operations_count = 0
-            self.streak_count = 0
+            self.counters = {"operations": 0, "streak": 0}
             self.achievements = []
 
-    def __load_counter(self, filename, key):
+    def __load_counters(self):
         """
-        Load a counter value for the current user.
-
-        Args:
-            filename (str): The JSON file to load from.
-            key (str): The key for the counter in the JSON data.
+        Load counter values for the current user.
 
         Returns:
-            int: The counter value for the user.
+            dict: A dictionary containing 'operations' and 'streak' counters.
         """
         try:
-            data = load_json(filename)
-            return data.get(self.user_id, {}).get(key, 0)
+            operations_data = load_json('operations_counter.json') or {}
+            streak_data = load_json('streak_counter.json') or {}
+            return {
+                "operations": operations_data.get(self.user_id, {}).get("operations", 0),
+                "streak": streak_data.get(self.user_id, {}).get("streak", 0)
+            }
         except Exception as e:
-            print(f"Error loading counter from {filename}: {e}")
-            return 0
+            print(f"Error loading counters: {e}")
+            return {"operations": 0, "streak": 0}
 
     def __get_unlocked_achievements(self):
         """
@@ -53,29 +51,19 @@ class Achievements:
         try:
             return [
                 achievement for achievement in self.all_achievements.get("achievements", [])
-                if (self.operations_count >= int(achievement.get("required_operations", 0)) and 
-                    self.streak_count >= int(achievement.get("required_streak", 0)))
+                if (self.counters["operations"] >= int(achievement.get("required_operations", 0)) and 
+                    self.counters["streak"] >= int(achievement.get("required_streak", 0)))
             ]
         except Exception as e:
             print(f"Error getting unlocked achievements: {e}")
             return []
-
-    def load_streak_count(self):
-        """
-        Load the streak count for the current user.
-
-        Returns:
-            int: The streak count for the user.
-        """
-        return self.__load_counter('streak_counter.json', "streak")
 
     def update_achievements(self):
         """
         Update the user's achievements based on the latest operations count and streak.
         """
         try:
-            self.operations_count = self.__load_counter('operations_counter.json', "operations")
-            self.streak_count = self.load_streak_count()
+            self.counters = self.__load_counters()
             self.achievements = self.__get_unlocked_achievements()
         except Exception as e:
             print(f"Error updating achievements: {e}")
@@ -94,8 +82,8 @@ class Achievements:
             print("Unlocked Achievements:")
             for achievement in self.achievements:
                 print(f"- {achievement['name']}: {achievement['description']}")
-        print(f"\nCurrent operations count: {self.operations_count}")
-        print(f"Current streak: {self.streak_count}")
+        print(f"\nCurrent operations count: {self.counters['operations']}")
+        print(f"Current streak: {self.counters['streak']}")
         print("-------------------")
         return self.achievements
 
@@ -105,10 +93,22 @@ class Achievements:
         """
         print("\n--- All Achievements ---")
         try:
-            unlocked = set(achievement['name'] for achievement in self.achievements)
-            for achievement in self.all_achievements["achievements"]:
-                status = f"{Fore.GREEN}Unlocked{Style.RESET_ALL}" if achievement['name'] in unlocked else f"{Fore.RED}Locked{Style.RESET_ALL}"
-                print(f"- {achievement['name']} ({status}): {achievement['description']}")
+            unlocked = set(achievement.get('name', '') for achievement in self.achievements)
+            for achievement in self.all_achievements.get("achievements", []):
+                name = achievement.get('name', 'Unknown')
+                description = achievement.get('description', 'No description available')
+                required_operations = achievement.get('required_operations', 0)
+                required_streak = achievement.get('required_streak', 0)
+                
+                if name in unlocked:
+                    status = f"{Fore.GREEN}Unlocked{Style.RESET_ALL}"
+                else:
+                    status = f"{Fore.RED}Locked{Style.RESET_ALL}"
+                    if self.counters['operations'] >= required_operations and self.counters['streak'] >= required_streak:
+                        status = f"{Fore.GREEN}Unlocked{Style.RESET_ALL}"
+                
+                print(f"- {name} ({status}): {description}")
+            print(f"  Current: Operations: {self.counters['operations']}, Streak: {self.counters['streak']}")
         except Exception as e:
             print(f"Error displaying all achievements: {e}")
         print("------------------------")

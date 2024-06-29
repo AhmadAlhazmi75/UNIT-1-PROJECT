@@ -1,6 +1,8 @@
 import os
+import sys
 import signal
 import atexit
+import asyncio
 from art import text2art
 from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
@@ -22,6 +24,17 @@ class EnglishPracticeSimulator:
     Manages various components and provides a user interface for different functionalities.
     """
     def __init__(self):
+        self.openai_client = None
+        self.feedback_manager = None
+        self.audio_recorder = None
+        self.audio_player = None
+        self.external_assets = None
+        self.vocabulary_builder = None
+        self.dictionary_search = None
+        self.google_authenticator = None
+        self.achievements = None
+        self.report_generator = None
+
         try:
             # Initialize all components
             self.openai_client = OpenAIClient()
@@ -33,13 +46,15 @@ class EnglishPracticeSimulator:
             self.dictionary_search = DictionarySearch()
             self.google_authenticator = GoogleAuthenticator()
             self.achievements = Achievements()
+            self.report_generator = ReportGenerator(self.google_authenticator.get_stored_user_id())
             
             # Register cleanup functions
             atexit.register(self.__cleanup)
             signal.signal(signal.SIGINT, self.__signal_handler)
         except Exception as e:
             print(f"Error initializing EnglishPracticeSimulator: {str(e)}")
-            raise
+            # Instead of raising, we'll just print the error and continue
+            # This allows the object to be created, even if some components failed to initialize
 
     def __cleanup(self):
         """Remove user_id.json and token.json files."""
@@ -54,7 +69,7 @@ class EnglishPracticeSimulator:
         """Handle SIGINT (Ctrl+C) signal."""
         print("\nReceived interrupt signal. Cleaning up...")
         self.__cleanup()
-        exit(0)
+        sys.exit(0)
 
     def run(self):
         """Main loop for the English practice simulator."""
@@ -75,7 +90,7 @@ class EnglishPracticeSimulator:
         
         while True:
             try:
-                self.__clear_console()
+                os.system('cls' if os.name == 'nt' else 'clear')
                 print(text2art(f"WELCOME", "3d_diagonal"))
                 print(f"{Fore.CYAN}Menu:{Style.RESET_ALL}")
                 
@@ -84,7 +99,6 @@ class EnglishPracticeSimulator:
                 
                 if choice == 9:  # Exit
                     self.google_authenticator.logout()
-                    self.__cleanup()
                     break
                 elif choice == 8:  # Export Report
                     self.__export_report()
@@ -103,19 +117,15 @@ class EnglishPracticeSimulator:
                     translated_text = self.openai_client.get_translation(text)
                     print(f"{Fore.GREEN}Translation: {translated_text}{Style.RESET_ALL}")
                 elif choice == 1:  # Search for a specific word
-                    self.dictionary_search.search_dictionary()
+                    asyncio.run(self.dictionary_search.search_dictionary())
                 elif choice == 0:  # Start English Practice
                     self.__start_practice_session(history)
-                    history = []  # Reset history for new practice session
                 
                 input(f"{Fore.YELLOW}Press Enter to continue...{Style.RESET_ALL}")
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
-                input(f"{Fore.YELLOW}Press Enter to continue...{Style.RESET_ALL}")
-
-    def __clear_console(self):
-        """Clear the console screen."""
-        os.system('cls' if os.name == 'nt' else 'clear')
+                while input(f"{Fore.YELLOW}Press Enter to continue...{Style.RESET_ALL}") == "":
+                    pass
 
     def __start_practice_session(self, history):
         """Start an English practice session with Lana."""
@@ -214,12 +224,24 @@ class EnglishPracticeSimulator:
             
             # get user_id
             user_id = self.google_authenticator.get_stored_user_id()
+            if not user_id:
+                print(f"{Fore.RED}Error: Unable to retrieve user ID.{Style.RESET_ALL}")
+                return
+
             # get feedbacks
-            feedbacks = [feedback for feedback in self.feedback_manager.display_feedbacks()]
+            feedbacks = self.feedback_manager.display_feedbacks()
+            if feedbacks is None:
+                feedbacks = []
+
             # get vocabulary quizzes
-            vocabulary_quizzes = [quiz for quiz in self.vocabulary_builder.display_vocabulary_quiz_results()]
+            vocabulary_quizzes = self.vocabulary_builder.display_vocabulary_quiz_results()
+            if vocabulary_quizzes is None:
+                vocabulary_quizzes = []
+
             # get achievements
-            achievements = [achievement for achievement in self.achievements.display_achievements()]
+            achievements = self.achievements.display_achievements()
+            if achievements is None:
+                achievements = []
             
             prompt = f"""
             Generate a comprehensive and personalized progress report for the user with ID {user_id}. The report should be structured as follows:
@@ -256,17 +278,18 @@ class EnglishPracticeSimulator:
                - Set positive expectations for future growth and learning.
 
             Please ensure the report is written in a professional yet engaging tone, using clear language and avoiding technical jargon. The report should be detailed and analytical, transforming the raw data into meaningful insights and actionable advice for the user.
-            and if the user do not have enough quizzes and results, tell the user to please practice more.
+            If the user does not have enough quizzes and results, tell the user to please practice more.
             """
             
-            
             # Generate the report
-            report_generator = ReportGenerator(self.google_authenticator.get_stored_user_id())
             if os.path.exists("user_progress_report.pdf"):
                 os.remove("user_progress_report.pdf")
-            output_file = report_generator.generate_report(prompt, "user_progress_report.pdf")
+            output_file = self.report_generator.generate_report(prompt, "user_progress_report.pdf")
             
-            print(f"{Fore.GREEN}Report exported successfully to {output_file}.{Style.RESET_ALL}")
+            if output_file:
+                print(f"{Fore.GREEN}Report exported successfully to {output_file}.{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}Failed to generate report.{Style.RESET_ALL}")
         except Exception as e:
             print(f"Error exporting report: {str(e)}")
 

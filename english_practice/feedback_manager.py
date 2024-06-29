@@ -18,11 +18,12 @@ class FeedbackManager:
             filename (str): Name of the file to store feedback data. Defaults to "english_practice_feedback.json".
         """
         self.filename: str = filename
+        self.user_id: str = None
         try:
-            self.user_id: str = GoogleAuthenticator().get_stored_user_id()
+            self.user_id = GoogleAuthenticator().get_stored_user_id()
         except Exception as e:
-            print(f"Error getting user ID: {e}")
-            self.user_id = None
+            print(f"{Fore.RED}Error getting user ID: {e}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Feedback will not be saved.{Style.RESET_ALL}")
 
     def save_feedback(self, feedback: str) -> None:
         """
@@ -34,6 +35,10 @@ class FeedbackManager:
         Raises:
             IOError: If there's an issue writing to the file.
         """
+        if self.user_id is None:
+            print(f"{Fore.RED}Error: User ID is None. Cannot save feedback.{Style.RESET_ALL}")
+            return
+
         new_feedback = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "feedback": feedback
@@ -41,22 +46,36 @@ class FeedbackManager:
 
         try:
             existing_data = load_json(self.filename)
+            if not isinstance(existing_data, dict):
+                existing_data = {}
             existing_data.setdefault(self.user_id, []).append(new_feedback)
             save_json(self.filename, existing_data)
+            print(f"{Fore.GREEN}Feedback saved successfully.{Style.RESET_ALL}")
         except IOError as e:
-            print(f"Error saving feedback: {e}")
+            print(f"{Fore.RED}Error saving feedback: {e}{Style.RESET_ALL}")
         except Exception as e:
-            print(f"Unexpected error occurred while saving feedback: {e}")
+            print(f"{Fore.RED}Unexpected error occurred while saving feedback: {e}{Style.RESET_ALL}")
 
-    def display_feedbacks(self) -> None:
+    def display_feedbacks(self) -> list:
         """
         Display all feedbacks stored in the file for the current user.
+
+        Returns:
+            list: A list of feedback dictionaries for the current user.
 
         Raises:
             json.JSONDecodeError: If there's an issue parsing the JSON file.
         """
+        if self.user_id is None:
+            print(f"{Fore.RED}Error: User ID is None. Cannot display feedbacks.{Style.RESET_ALL}")
+            return []
+
         try:
             feedbacks = load_json(self.filename)
+            if not isinstance(feedbacks, dict):
+                print(f"{Fore.YELLOW}No valid feedback data found.{Style.RESET_ALL}")
+                return []
+            
             user_feedbacks = feedbacks.get(self.user_id, [])
 
             print(f"\n{Fore.CYAN}English Practice Feedbacks for User:{Style.RESET_ALL}")
@@ -72,8 +91,7 @@ class FeedbackManager:
                     print(f"{Fore.CYAN}{'-' * 80}{Style.RESET_ALL}")
             return user_feedbacks
         except json.JSONDecodeError as e:
-            print(f"Error parsing JSON file: {e}")
+            print(f"{Fore.RED}Error parsing JSON file: {e}{Style.RESET_ALL}")
         except Exception as e:
-            print(f"Unexpected error occurred while displaying feedbacks: {e}")
+            print(f"{Fore.RED}Unexpected error occurred while displaying feedbacks: {e}{Style.RESET_ALL}")
         return []
-

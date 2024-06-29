@@ -1,5 +1,7 @@
 from .external_assets import ExternalAssets
 from colorama import Fore, Style
+import urllib.parse
+import asyncio
 
 class DictionarySearch(ExternalAssets):
     """
@@ -14,28 +16,31 @@ class DictionarySearch(ExternalAssets):
         super().__init__("Dictionary", "")
         self.word = None
 
-    def search_dictionary(self):
+    async def search_dictionary(self):
         """
         Prompt the user for a word, validate the input, and open the dictionary page for that word.
         
         This method performs the following steps:
         1. Prompt the user to enter a word
-        2. Validate that the input is a single word
-        3. Update the URL for the dictionary search
+        2. Validate that the input is a single word and not empty
+        3. Update the URL for the dictionary search with proper encoding
         4. Open the dictionary page in the default web browser
         5. Print a confirmation message
         
-        If the input is invalid (more than one word), an error message is displayed and the method returns.
+        If the input is invalid (empty or more than one word), an error message is displayed and the method returns.
         """
         try:
-            self.word = input(f"{Fore.YELLOW}Enter the word you want to search: {Style.RESET_ALL}")
-        
-            if len(self.word.split()) > 1:
+            self.word = await asyncio.get_event_loop().run_in_executor(
+                None, lambda: input(f"{Fore.YELLOW}Enter the word you want to search: {Style.RESET_ALL}")
+            )
+            
+            if not self.word or len(self.word.split()) > 1:
                 print(f"{Fore.RED}Invalid input. Please enter a single word.{Style.RESET_ALL}")
                 return
-        
-            self._url = f"https://www.dictionary.com/browse/{self.word}"
-        
+            
+            encoded_word = urllib.parse.quote(self.word)
+            self._url = f"https://www.dictionary.com/browse/{encoded_word}"
+            
             self.open_in_browser()
             print(f"{Fore.GREEN}Opening dictionary for: {self.word}...{Style.RESET_ALL}")
         except Exception as e:

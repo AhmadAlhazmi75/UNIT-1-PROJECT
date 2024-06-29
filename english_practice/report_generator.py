@@ -11,6 +11,7 @@ class ReportGenerator:
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def generate_report(self, prompt: str, output_file: str = "report.pdf"):
+        temp_html_path = None
         try:
             # Generate markdown report using OpenAI
             markdown_report = self.openai_client.get_report(prompt)
@@ -26,7 +27,7 @@ class ReportGenerator:
             if os.path.exists(logo_path):
                 logo_html = f'<img src="{logo_path}" alt="Lana Logo" class="logo">'
             else:
-                print(f"Warning: Logo file not found at {logo_path}")
+                self.logger.warning(f"Logo file not found at {logo_path}")
                 logo_html = ''  # Empty string if logo is not found
 
             # Create a temporary HTML file with enhanced styling
@@ -134,6 +135,13 @@ class ReportGenerator:
             HTML(filename=temp_html_path).write_pdf(output_file)
 
             return output_file
+        except OpenAIClient.OpenAIError as e:
+            self.logger.error(f"OpenAI API error occurred: {str(e)}")
+        except IOError as e:
+            self.logger.error(f"I/O error occurred: {str(e)}")
         except Exception as e:
-            print(f"An error occurred while generating the report: {str(e)}")
-            return None
+            self.logger.error(f"An unexpected error occurred: {str(e)}")
+        finally:
+            if temp_html_path and os.path.exists(temp_html_path):
+                os.unlink(temp_html_path)
+        return None

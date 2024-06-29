@@ -37,15 +37,23 @@ class AudioRecorder:
         Raises:
             IOError: If there's an error during audio recording or file writing.
         """
-        p: pyaudio.PyAudio = pyaudio.PyAudio()
+        p: pyaudio.PyAudio = None
+        stream: pyaudio.Stream = None
 
-        stream: pyaudio.Stream = p.open(
-            format=self.FORMAT,
-            channels=self.CHANNELS,
-            rate=self.RATE,
-            input=True,
-            frames_per_buffer=self.CHUNK
-        )
+        try:
+            p = pyaudio.PyAudio()
+            stream = p.open(
+                format=self.FORMAT,
+                channels=self.CHANNELS,
+                rate=self.RATE,
+                input=True,
+                frames_per_buffer=self.CHUNK
+            )
+        except Exception as e:
+            print(f"{Fore.RED}Error initializing PyAudio or opening audio stream: {e}{Style.RESET_ALL}")
+            if p:
+                p.terminate()
+            return
 
         print(f"{Fore.YELLOW}Press Enter to start recording. Press Enter again to stop.{Style.RESET_ALL}")
         input()  # Wait for Enter to start recording
@@ -72,6 +80,9 @@ class AudioRecorder:
                     else:
                         print(f"{Fore.RED}Error recording audio: {e}{Style.RESET_ALL}")
                         recording = False
+                except Exception as e:
+                    print(f"{Fore.RED}Unexpected error during recording: {e}{Style.RESET_ALL}")
+                    recording = False
 
         # Start recording in a separate thread
         record_thread: threading.Thread = threading.Thread(target=record)
@@ -86,9 +97,11 @@ class AudioRecorder:
 
         print(f"{Fore.GREEN}Recording stopped.{Style.RESET_ALL}")
 
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+        if stream:
+            stream.stop_stream()
+            stream.close()
+        if p:
+            p.terminate()
 
         if frames:
             self.__save_audio_to_file(filename, p, frames)

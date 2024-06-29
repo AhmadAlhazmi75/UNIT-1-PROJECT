@@ -24,33 +24,31 @@ class GoogleAuthenticator:
         Returns:
             bool: True if authentication is successful, False otherwise.
         """
-        try:
-            self.__load_or_refresh_credentials()
-            
-            if self.credentials and self.credentials.valid:
-                self.user_id = self.__extract_user_id()
-                self.__store_user_id(self.user_id)
-                return True
-            
-            return False
-        except Exception as e:
-            print(f"Authentication failed: {str(e)}")
-            return False
+        self.__load_or_refresh_credentials()
+        
+        if self.credentials and self.credentials.valid:
+            self.user_id = self.__extract_user_id()
+            self.__store_user_id(self.user_id)
+            return True
+        
+        return False
 
     def __load_or_refresh_credentials(self):
         """
         Load existing credentials or authenticate with Google if necessary.
         """
-        try:
-            if os.path.exists('token.json'):
-                self.credentials = Credentials.from_authorized_user_file('token.json')
-                if self.credentials and self.credentials.expired and self.credentials.refresh_token:
+        if os.path.exists('token.json'):
+            self.credentials = Credentials.from_authorized_user_file('token.json')
+            if self.credentials and self.credentials.expired and self.credentials.refresh_token:
+                try:
                     self.credentials.refresh(Request())
-            else:
-                self.credentials = self.__authenticate_with_google()
-        except Exception as e:
-            print(f"Error loading or refreshing credentials: {str(e)}")
-            self.credentials = None
+                except:
+                    self.credentials = None
+            elif not self.credentials or not self.credentials.valid:
+                self.credentials = None
+        
+        if not self.credentials:
+            self.credentials = self.__authenticate_with_google()
 
     def __authenticate_with_google(self):
         """
@@ -59,19 +57,15 @@ class GoogleAuthenticator:
         Returns:
             Credentials: The obtained Google credentials.
         """
-        try:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                './client_secrets.json',
-                scopes=['https://www.googleapis.com/auth/userinfo.email', 'openid']
-            )
-            credentials = flow.run_local_server(port=8080)
-            
-            self.__save_credentials(credentials)
-            
-            return credentials
-        except Exception as e:
-            print(f"Error during Google authentication: {str(e)}")
-            return None
+        flow = InstalledAppFlow.from_client_secrets_file(
+            './client_secrets.json',
+            scopes=['https://www.googleapis.com/auth/userinfo.email', 'openid']
+        )
+        credentials = flow.run_local_server(port=8080)
+        
+        self.__save_credentials(credentials)
+        
+        return credentials
 
     def __save_credentials(self, credentials):
         """
@@ -83,8 +77,8 @@ class GoogleAuthenticator:
         try:
             with open('token.json', 'w') as token:
                 token.write(credentials.to_json())
-        except Exception as e:
-            print(f"Error saving credentials: {str(e)}")
+        except IOError:
+            print("Unable to save credentials. Continuing without saving.")
 
     def __extract_user_id(self):
         """
@@ -93,16 +87,12 @@ class GoogleAuthenticator:
         Returns:
             str: The unique user identifier.
         """
-        try:
-            id_info = id_token.verify_oauth2_token(
-                self.credentials.id_token, 
-                Request(), 
-                audience=self.credentials.client_id
-            )
-            return id_info['sub']
-        except Exception as e:
-            print(f"Error extracting user ID: {str(e)}")
-            return None
+        id_info = id_token.verify_oauth2_token(
+            self.credentials.id_token, 
+            Request(), 
+            audience=self.credentials.client_id
+        )
+        return id_info['sub']
 
     def __store_user_id(self, user_id):
         """
@@ -113,8 +103,8 @@ class GoogleAuthenticator:
         """
         try:
             save_json('user_id.json', {'user_id': user_id})
-        except Exception as e:
-            print(f"Error storing user ID: {str(e)}")
+        except IOError:
+            print("Unable to store user ID. Continuing without saving.")
 
     def get_stored_user_id(self):
         """
@@ -126,19 +116,22 @@ class GoogleAuthenticator:
         try:
             data = load_json('user_id.json')
             return data.get('user_id')
-        except Exception as e:
-            print(f"Error retrieving stored user ID: {str(e)}")
+        except IOError:
             return None
 
     def logout(self):
         """
         Log out the user by removing the token file and resetting credentials.
         """
-        try:
-            if os.path.exists('token.json'):
+        if os.path.exists('token.json'):
+            try:
                 os.remove('token.json')
-            self.credentials = None
-            self.user_id = None
-        except Exception as e:
-            print(f"Error during logout: {str(e)}")
-
+            except IOError:
+                print("Unable to remove token file. Please delete it manually.")
+        if os.path.exists('user_id.json'):
+            try:
+                os.remove('user_id.json')
+            except IOError:
+                print("Unable to remove user ID file. Please delete it manually.")
+        self.credentials = None
+        self.user_id = None

@@ -22,7 +22,7 @@ class VocabularyBuilder:
             self.correct_answers = 0
             self.achievements = Achievements()
             self.operations_counter = self.__load_operations_counter()
-            self.current_streak = self.achievements.load_streak_count()
+            self.current_streak = self.achievements.counters["streak"]
         except Exception as e:
             print(f"{Fore.RED}Error initializing VocabularyBuilder: {str(e)}{Style.RESET_ALL}")
     

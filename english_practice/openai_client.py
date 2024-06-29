@@ -3,8 +3,6 @@ import os
 from dotenv import load_dotenv
 from colorama import Fore, Style
 
-load_dotenv()
-
 
 class OpenAIClient:
     """
@@ -26,6 +24,7 @@ class OpenAIClient:
             ValueError: If the OPENAI_API_KEY environment variable is not set.
         """
         try:
+            load_dotenv()
             self.api_key: str = os.getenv("OPENAI_API_KEY")
             if not self.api_key:
                 raise ValueError(f"{Fore.RED}The OPENAI_API_KEY environment variable is not set.{Style.RESET_ALL}")
@@ -34,14 +33,15 @@ class OpenAIClient:
             print(f"{Fore.RED}An error occurred during initialization: {e}{Style.RESET_ALL}")
             raise
 
-    def get_response(self, prompt: str, history: list, is_translation: bool = False, is_extracting_report: bool = False) -> str:
+    def get_response(self, prompt: str, history: list = None, is_translation: bool = False, is_extracting_report: bool = False) -> str:
         """
         Generate a chat response using OpenAI's GPT model.
 
         Args:
             prompt (str): The user's input prompt.
-            history (list): The conversation history.
+            history (list, optional): The conversation history. Defaults to None.
             is_translation (bool): Indicates if the request is for translation. Defaults to False.
+            is_extracting_report (bool): Indicates if the request is for extracting a report. Defaults to False.
 
         Returns:
             str: The generated response from the model.
@@ -67,7 +67,9 @@ class OpenAIClient:
             messages: list[dict] = [
                 {"role": "system", "content": "You are Lana, a friendly and relatable English tutor in a conversational app with audio. Your responses will be converted to speech using a text-to-speech system. Your goal is to help the user practice English in an engaging and natural way. Ask various interesting questions that encourage the user to talk a lot and maintain a casual atmosphere throughout the conversation. Use informal language and expressions like 'Oh, that's cool!' or 'I've tried that before!' to make the conversation feel more natural. Occasionally, when appropriate, add a touch of humor to keep things light. The session should have exactly 7 exchanges, with the last exchange being a friendly goodbye to the user."}
             ]
-        messages.extend(history)
+        
+        if history:
+            messages.extend(history)
         messages.append({"role": "user", "content": prompt})
 
         try:
@@ -80,7 +82,7 @@ class OpenAIClient:
             
             full_response = ""
             for chunk in response_stream:
-                if chunk.choices[0].delta.content is not None:
+                if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content is not None:
                     full_response += chunk.choices[0].delta.content
                     # You can process or display each chunk here if needed
                     # print(chunk.choices[0].delta.content, end="", flush=True)
@@ -93,6 +95,9 @@ class OpenAIClient:
         """
         Translate text to English using OpenAI's GPT model.
         """
+        if not text:
+            return f"{Fore.RED}No text to translate.{Style.RESET_ALL}"
+        
         prompt:str = f"""
         You are a highly skilled translator fluent in both English and Arabic. Your task is to accurately translate the provided text from one language to the other.
         If the text is in Arabic, translate it to English. If the text is in English, translate it to Arabic.
@@ -142,8 +147,11 @@ class OpenAIClient:
             filename (str, optional): The name of the audio file to transcribe. Defaults to "input.wav".
 
         Returns:
-            str: The transcribed text.
+            str: The transcribed text or an error message.
         """
+        if not os.path.exists(filename):
+            return f"{Fore.RED}Error: Audio file '{filename}' not found.{Style.RESET_ALL}"
+
         try:
             with open(filename, "rb") as audio_file:
                 transcript = self.client.audio.transcriptions.create(
@@ -153,8 +161,9 @@ class OpenAIClient:
                 )
             return transcript.text
         except Exception as e:
-            print(f"{Fore.RED}An error occurred during audio transcription: {e}{Style.RESET_ALL}")
-            return ""
+            error_message = f"{Fore.RED}An error occurred during audio transcription: {e}{Style.RESET_ALL}"
+            print(error_message)
+            return error_message
 
     def text_to_speech(self, text: str, voice: str = "nova") -> bytes:
         """
@@ -176,5 +185,6 @@ class OpenAIClient:
             
             return response.content
         except Exception as e:
-            print(f"{Fore.RED}An error occurred during text-to-speech conversion: {e}{Style.RESET_ALL}")
+            error_message = f"{Fore.RED}An error occurred during text-to-speech conversion: {e}{Style.RESET_ALL}"
+            print(error_message)
             return None
