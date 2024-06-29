@@ -1,0 +1,88 @@
+{
+  "achievements": [
+    {
+      "name": "Beginner's Luck",
+      "required_operations": 5,
+      "required_streak": 0,
+      "description": "You've solved your first 5 quiz questions. Great start!"
+    },
+    {
+      "name": "Steady Progress",
+      "required_operations": 10,
+      "required_streak": 0,
+      "description": "You've tackled 10 quiz questions. Keep up the good work!"
+    },
+    {
+      "name": "Vocabulary Enthusiast",
+      "required_operations": 25,
+      "required_streak": 0,
+      "description": "25 questions answered! Your vocabulary is growing."
+    },
+    {
+      "name": "Word Wizard",
+      "required_operations": 50,
+      "required_streak": 0,
+      "description": "Impressive! You've conquered 50 quiz questions."
+    },
+    {
+      "name": "Language Maven",
+      "required_operations": 100,
+      "required_streak": 0,
+      "description": "A century of questions! You're becoming a true language expert."
+    },
+    {
+      "name": "Streak Starter",
+      "required_operations": 0,
+      "required_streak": 3,
+      "description": "You've answered 3 questions correctly in a row. Nice streak!"
+    },
+    {
+      "name": "Consistency King",
+      "required_operations": 0,
+      "required_streak": 5,
+      "description": "Five correct answers in a row! Your consistency is admirable."
+    },
+    {
+      "name": "Perfect Ten",
+      "required_operations": 0,
+      "required_streak": 10,
+      "description": "Wow! You've nailed 10 questions in a row. Incredible performance!"
+    },
+    {
+      "name": "Vocabulary Virtuoso",
+      "required_operations": 200,
+      "required_streak": 0,
+      "description": "200 questions mastered! Your word knowledge is truly impressive."
+    },
+    {
+      "name": "Linguistic Legend",
+      "required_operations": 500,
+      "required_streak": 0,
+      "description": "You've conquered 500 questions! You're a true linguistic legend."
+    },
+    {
+      "name": "Streak Superstar",
+      "required_operations": 0,
+      "required_streak": 20,
+      "description": "An incredible 20 correct answers in a row! You're on fire!"
+    },
+    {
+      "name": "Unbreakable",
+      "required_operations": 0,
+      "required_streak": 50,
+      "description": "50 correct answers in a row! Your focus is unmatched."
+    },
+    {
+      "name": "Daily Devotion",
+      "required_operations": 30,
+      "required_streak": 7,
+      "description": "You've answered at least 30 questions correctly for 7 days straight. Now that's dedication!"
+    },
+    {
+      "name": "Polyglot in Training",
+      "required_operations": 1000,
+      "required_streak": 0,
+      "description": "1000 questions answered! You're well on your way to becoming a polyglot."
+    }
+  ]
+}

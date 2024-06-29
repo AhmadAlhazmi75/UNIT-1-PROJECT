@@ -1,40 +1,92 @@
-# UNIT-1-PROJECT
+# English Practice Simulator 🚀🌟
 
+Enhance your English proficiency with the English Practice Simulator! This interactive tool is designed to elevate your language skills through engaging activities. Join us on this linguistic journey!
 
+English Practice Simulator Screenshot
 
-## Based on what you’ve learned until now , create a project of your choosing (impress us with your imagination) . This project must at least satisfy the following minimum requirements :
+## Table of Contents
 
-- Must be interactive on CLI.
-- Use your coding skills in Python accurately.
-- Organize Your Code into modules & (or packages)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Example Project :  An online Grocery Store :
+## Installation
 
-#### Overview : An online store that sells fruits to customers. This online store has 2 main users. The customer and the manager of the store . Each one of them should be able to do the following tasks for the store to function properly . 
+1. Clone the repository:
 
-#### As a customer I should be able to do the following :
-- Browse  Products . 
-- View the product info (summary, specs, price, quantity , etc.)
-- Search for Products.
-- Get recommendations for my next purchase based on my purchase history.
-- Add Products to the shopping cart .
-- Remove a product from the shopping cart.
-- List the products in my shopping cart. 
-- Continue to checkout . 
-- Fill in my address for delivery.
-- Get receipt of my purchases.
-- Check delivery status . 
+   ```bash
+   git clone https://github.com/AhmadAlhazmi75/UNIT-1-PROJECT
+   ```
 
+2. Navigate to the project directory:
 
+   ```bash
+   cd UNIT-1-PROJECT
+   ```
 
-#### Usage :
- Explain to the user how to use your project . 
- for example:
- - type in search product_name to search for a product.
- - type in list_products to show all the products in the grocery.
- - type in show product_name to get information about this product.
- - type in buy product_name to buy the product . 
- - and so on...
+3. Install the required dependencies:
 
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-### For your project. Edit this README.md file to include your own project name,  overview, user stories, and usage. 
+   ```bash
+   brew install pang libffi cairo
+   ```
+
+4. Set up API keys:
+   - Configure your OpenAI API key
+   - Set up Google OAuth credentials
+
+## Usage
+
+1. Launch the main script:
+
+   ```bash
+   python main.py
+   ```
+
+2. Log in using Google Authentication
+
+3. Choose from the available practice modes:
+   - English Practice Sessions
+   - Dictionary Search
+   - Grammar Cheatsheet
+   - Vocabulary Builder
+
+Usage Example Video or Screenshot
+
+## Features
+
+- **English Practice Sessions** 🤖: Engage in conversations with Lana, your AI tutor.
+- **Dictionary Search** 📚: Instantly look up words to expand your vocabulary.
+- **English Grammar Cheatsheet** 📝: Access a comprehensive collection of grammar tips.
+- **Vocabulary Builder** 🧠: Boost your word power with interactive quizzes.
+- **AI Feedback Display** 🤖💬: Monitor your progress with insightful AI feedback.
+- **Vocabulary Quiz Results** 📊: Track your quiz performances to measure your knowledge.
+- **Achievements System** 🏅: Earn badges as you reach language milestones.
+
+### Advanced Components
+
+- OpenAI Integration for natural language processing and text-to-speech
+- Audio Recording and Playback for pronunciation practice
+- Google Authentication for secure access
+- External Resources for additional learning materials
+
+## Contributing
+
+We welcome contributions to the English Practice Simulator! Here's how you can help:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the [MIT License](LICENSE.md) - see the LICENSE.md file for details.
