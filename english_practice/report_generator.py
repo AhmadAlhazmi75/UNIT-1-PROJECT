@@ -21,7 +21,7 @@ class ReportGenerator:
             html_content = markdowner.convert(markdown_report)
 
             # Get the absolute path to the logo
-            logo_path = os.path.join(self.base_dir, 'Lana.png')
+            logo_path = os.path.join(self.base_dir, 'assets/Lana.png')
 
             # Check if the logo file exists
             if os.path.exists(logo_path):

@@ -37,8 +37,8 @@ class GoogleAuthenticator:
         """
         Load existing credentials or authenticate with Google if necessary.
         """
-        if os.path.exists('token.json'):
-            self.credentials = Credentials.from_authorized_user_file('token.json')
+        if os.path.exists('db/token.json'):
+            self.credentials = Credentials.from_authorized_user_file('db/token.json')
             if self.credentials and self.credentials.expired and self.credentials.refresh_token:
                 try:
                     self.credentials.refresh(Request())
@@ -58,7 +58,7 @@ class GoogleAuthenticator:
             Credentials: The obtained Google credentials.
         """
         flow = InstalledAppFlow.from_client_secrets_file(
-            './client_secrets.json',
+            './db/client_secrets.json',
             scopes=['https://www.googleapis.com/auth/userinfo.email', 'openid']
         )
         credentials = flow.run_local_server(port=8080)
@@ -75,7 +75,7 @@ class GoogleAuthenticator:
             credentials (Credentials): The credentials to save.
         """
         try:
-            with open('token.json', 'w') as token:
+            with open('db/token.json', 'w') as token:
                 token.write(credentials.to_json())
         except IOError:
             print("Unable to save credentials. Continuing without saving.")
@@ -102,7 +102,7 @@ class GoogleAuthenticator:
             user_id (str): The user ID to store.
         """
         try:
-            save_json('user_id.json', {'user_id': user_id})
+            save_json('db/user_id.json', {'user_id': user_id})
         except IOError:
             print("Unable to store user ID. Continuing without saving.")
 
@@ -114,7 +114,7 @@ class GoogleAuthenticator:
             str: The stored user ID, or None if not found.
         """
         try:
-            data = load_json('user_id.json')
+            data = load_json('db/user_id.json')
             return data.get('user_id')
         except IOError:
             return None
@@ -123,14 +123,14 @@ class GoogleAuthenticator:
         """
         Log out the user by removing the token file and resetting credentials.
         """
-        if os.path.exists('token.json'):
+        if os.path.exists('db/token.json'):
             try:
-                os.remove('token.json')
+                os.remove('db/token.json')
             except IOError:
                 print("Unable to remove token file. Please delete it manually.")
-        if os.path.exists('user_id.json'):
+        if os.path.exists('db/user_id.json'):
             try:
-                os.remove('user_id.json')
+                os.remove('db/user_id.json')
             except IOError:
                 print("Unable to remove user ID file. Please delete it manually.")
         self.credentials = None

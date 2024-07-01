@@ -3,7 +3,6 @@ import sys
 import signal
 import atexit
 import asyncio
-from art import text2art
 from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 
@@ -21,7 +20,6 @@ from .report_generator import ReportGenerator
 class EnglishPracticeSimulator:
     """
     Main entry point for the English practice simulator.
-    Manages various components and provides a user interface for different functionalities.
     """
     def __init__(self):
         self.openai_client = None
@@ -65,7 +63,7 @@ class EnglishPracticeSimulator:
         except Exception as e:
             print(f"Error during cleanup: {str(e)}")
 
-    def __signal_handler(self, signum, frame):
+    def __signal_handler(self):
         """Handle SIGINT (Ctrl+C) signal."""
         print("\nReceived interrupt signal. Cleaning up...")
         self.__cleanup()
@@ -76,39 +74,45 @@ class EnglishPracticeSimulator:
         history = []
         
         menu_options = [
-            "Start English Practice",
-            "Search for a specific word",
-            "AI Translator",
-            "English Grammar Cheatsheet",
-            "Vocabulary Builder",
-            "Display AI Feedbacks",
-            "Display Vocabulary Quiz Results",
-            "Display Achievements",
-            "Export Report",
-            "Exit"
+            "🎙️ Start English Practice",
+            "🔍 Search for a specific word",
+            "🌐 AI Translator",
+            "📚 English Grammar Cheatsheet",
+            "📝 Vocabulary Builder",
+            "💬 Display AI Feedbacks",
+            "📊 Display Vocabulary Quiz Results",
+            "🏆 Display Achievements",
+            "📄 Export Report",
+            "🚪 Exit"
         ]
         
         while True:
             try:
                 os.system('cls' if os.name == 'nt' else 'clear')
-                print(text2art(f"WELCOME", "3d_diagonal"))
-                print(f"{Fore.CYAN}Menu:{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}🌟 Welcome to the English Practice Simulator! 🌟{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}🚀 This program helps you improve your English skills through various interactive exercises and tools.{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}🎯 Choose from the options below to start your learning journey.{Style.RESET_ALL}\n")
+                print(f"{Fore.BLUE}📋 Menu:{Style.RESET_ALL}")
                 
-                terminal_menu = TerminalMenu(menu_options, title="Select an option")
+                terminal_menu = TerminalMenu(
+                    menu_options,
+                    title="Select an option:",
+                    clear_menu_on_exit=True,
+                )
                 choice = terminal_menu.show()
                 
-                if choice == 9:  # Exit
+                if choice == 9: 
                     self.google_authenticator.logout()
                     break
-                elif choice == 8:  # Export Report
+                elif choice == 8: 
                     self.__export_report()
-                elif choice == 7:  # Display Achievements
+                elif choice == 7: 
                     self.achievements.display_all_achievements()
-                elif choice == 6:  # Display Vocabulary Quiz Results
+                elif choice == 6:  
                     self.vocabulary_builder.display_vocabulary_quiz_results()
-                elif choice == 5:  # Display AI Feedbacks
+                elif choice == 5:  
                     self.feedback_manager.display_feedbacks()
-                elif choice == 4:  # Vocabulary Builder
+                elif choice == 4: 
                     self.vocabulary_builder.generate_quiz()
                 elif choice == 3:  # English Grammar Cheatsheet
                     self.external_assets.open_in_browser()
@@ -120,12 +124,13 @@ class EnglishPracticeSimulator:
                     asyncio.run(self.dictionary_search.search_dictionary())
                 elif choice == 0:  # Start English Practice
                     self.__start_practice_session(history)
-                
+
                 input(f"{Fore.YELLOW}Press Enter to continue...{Style.RESET_ALL}")
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
                 while input(f"{Fore.YELLOW}Press Enter to continue...{Style.RESET_ALL}") == "":
-                    pass
+                    self.__cleanup()
+                    exit()
 
     def __start_practice_session(self, history):
         """Start an English practice session with Lana."""
@@ -170,6 +175,7 @@ class EnglishPracticeSimulator:
                 print(f"{Fore.YELLOW}Exchange {exchange_count + 1}/7{Style.RESET_ALL}")
             
             self.__provide_feedback(history)
+            
         except Exception as e:
             print(f"An error occurred during the practice session: {str(e)}")
 
@@ -229,17 +235,17 @@ class EnglishPracticeSimulator:
                 return
 
             # get feedbacks
-            feedbacks = self.feedback_manager.display_feedbacks()
+            feedbacks = self.feedback_manager.display_feedbacks(is_for_report=True)
             if feedbacks is None:
                 feedbacks = []
 
             # get vocabulary quizzes
-            vocabulary_quizzes = self.vocabulary_builder.display_vocabulary_quiz_results()
+            vocabulary_quizzes = self.vocabulary_builder.display_vocabulary_quiz_results(is_for_report=True)
             if vocabulary_quizzes is None:
                 vocabulary_quizzes = []
 
             # get achievements
-            achievements = self.achievements.display_achievements()
+            achievements = self.achievements.display_achievements(is_for_report=True)
             if achievements is None:
                 achievements = []
             
@@ -279,6 +285,10 @@ class EnglishPracticeSimulator:
 
             Please ensure the report is written in a professional yet engaging tone, using clear language and avoiding technical jargon. The report should be detailed and analytical, transforming the raw data into meaningful insights and actionable advice for the user.
             If the user does not have enough quizzes and results, tell the user to please practice more.
+            
+            And remember you are a report writer, do not add these phrases [Add your suggestion here], [Add Areas of Strengths], just write the whole report.
+            If the user doesn't have many quizzes results, feedbacks, or achievements, just write that the user needs to practice more. And skip the 7 points, just give the user advice to practice more.
+            
             """
             
             # Generate the report
@@ -299,3 +309,4 @@ if __name__ == "__main__":
         simulator.run()
     except Exception as e:
         print(f"An error occurred while running the simulator: {str(e)}")
+

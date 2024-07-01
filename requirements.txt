@@ -1,0 +1,13 @@
+openai
+google-auth-oauthlib
+google-auth
+colorama
+simple-term-menu
+pyaudio
+pygame
+art
+markdown2
+weasyprint
+python-dotenv
+urllib3
+asyncio

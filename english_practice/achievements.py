@@ -13,7 +13,7 @@ class Achievements:
         """
         try:
             self.user_id = GoogleAuthenticator().get_stored_user_id()
-            self.all_achievements = load_json('achievement.json') or {}
+            self.all_achievements = load_json('db/achievement.json') or {}
             self.counters = self.__load_counters()
             self.achievements = self.__get_unlocked_achievements()
         except Exception as e:
@@ -31,8 +31,8 @@ class Achievements:
             dict: A dictionary containing 'operations' and 'streak' counters.
         """
         try:
-            operations_data = load_json('operations_counter.json') or {}
-            streak_data = load_json('streak_counter.json') or {}
+            operations_data = load_json('db/operations_counter.json') or {}
+            streak_data = load_json('db/streak_counter.json') or {}
             return {
                 "operations": operations_data.get(self.user_id, {}).get("operations", 0),
                 "streak": streak_data.get(self.user_id, {}).get("streak", 0)
@@ -68,24 +68,26 @@ class Achievements:
         except Exception as e:
             print(f"Error updating achievements: {e}")
 
-    def display_achievements(self):
+    def display_achievements(self, is_for_report: bool = False):
         """
         Display the user's unlocked achievements, current operations count, and streak.
 
         Returns:
             list: The list of unlocked achievements.
         """
-        print("\n--- Achievements ---")
-        if not self.achievements:
-            print("No achievements unlocked yet.")
+        if not is_for_report:
+            print("\n--- Achievements ---")
+            if not self.achievements:
+                print("No achievements unlocked yet.")
+            else:
+                print("Unlocked Achievements:")
+                for achievement in self.achievements:
+                    print(f"- {achievement['name']}: {achievement['description']}")
+            print(f"\nCurrent operations count: {self.counters['operations']}")
+            print(f"Current streak: {self.counters['streak']}")
+            print("-------------------")
         else:
-            print("Unlocked Achievements:")
-            for achievement in self.achievements:
-                print(f"- {achievement['name']}: {achievement['description']}")
-        print(f"\nCurrent operations count: {self.counters['operations']}")
-        print(f"Current streak: {self.counters['streak']}")
-        print("-------------------")
-        return self.achievements
+            return self.achievements
 
     def display_all_achievements(self):
         """

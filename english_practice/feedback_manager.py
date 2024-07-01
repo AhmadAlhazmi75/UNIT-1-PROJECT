@@ -10,7 +10,7 @@ class FeedbackManager:
     Provides functionality to save and display feedback for individual users.
     """
 
-    def __init__(self, filename: str = "english_practice_feedback.json"):
+    def __init__(self, filename: str = "db/english_practice_feedback.json"):
         """
         Initialize the FeedbackManager with a filename for storing feedback.
 
@@ -56,7 +56,7 @@ class FeedbackManager:
         except Exception as e:
             print(f"{Fore.RED}Unexpected error occurred while saving feedback: {e}{Style.RESET_ALL}")
 
-    def display_feedbacks(self) -> list:
+    def display_feedbacks(self, is_for_report: bool = False) -> list:
         """
         Display all feedbacks stored in the file for the current user.
 
@@ -77,19 +77,22 @@ class FeedbackManager:
                 return []
             
             user_feedbacks = feedbacks.get(self.user_id, [])
-
-            print(f"\n{Fore.CYAN}English Practice Feedbacks for User:{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}{'=' * 80}{Style.RESET_ALL}")
-
-            if not user_feedbacks:
-                print(f"{Fore.YELLOW}No feedbacks found for this user.{Style.RESET_ALL}")
+            if is_for_report:
+                return user_feedbacks
             else:
-                for feedback in user_feedbacks:
-                    print(f"{Fore.YELLOW}Date: {feedback['timestamp']}{Style.RESET_ALL}")
-                    print(f"{Fore.GREEN}Feedback:{Style.RESET_ALL}")
-                    print(f"{feedback['feedback']}")
-                    print(f"{Fore.CYAN}{'-' * 80}{Style.RESET_ALL}")
-            return user_feedbacks
+                print(f"\n{Fore.CYAN}English Practice Feedbacks for User:{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}{'=' * 80}{Style.RESET_ALL}")
+
+                if not user_feedbacks:
+                    print(f"{Fore.YELLOW}No feedbacks found for this user.{Style.RESET_ALL}")
+                else:
+                    for feedback in user_feedbacks:
+                        print(f"{Fore.YELLOW}Date: {feedback['timestamp']}{Style.RESET_ALL}")
+                        print(f"{Fore.GREEN}Feedback:{Style.RESET_ALL}")
+                        print(f"{feedback['feedback']}")
+                        print(f"{Fore.CYAN}{'-' * 80}{Style.RESET_ALL}")
+            
+           
         except json.JSONDecodeError as e:
             print(f"{Fore.RED}Error parsing JSON file: {e}{Style.RESET_ALL}")
         except Exception as e:

@@ -29,21 +29,21 @@ class VocabularyBuilder:
     # Data loading methods
     def __load_vocabulary(self):
         try:
-            return load_json('vocabulary.json')
+            return load_json('db/vocabulary.json')
         except Exception as e:
             print(f"{Fore.RED}Error loading vocabulary: {str(e)}{Style.RESET_ALL}")
             return {}
     
     def __load_operations_counter(self):
         try:
-            counter = load_json('operations_counter.json')
+            counter = load_json('db/operations_counter.json')
             return counter.get(self.user_id, {"operations": 0, "max_streak": 0})
         except Exception as e:
             print(f"{Fore.RED}Error loading operations counter: {str(e)}{Style.RESET_ALL}")
             return {"operations": 0, "max_streak": 0}
     
     def __load_vocabulary_quiz_history(self):
-        filename = 'vocabulary_quiz_history.json'
+        filename = 'db/vocabulary_quiz_history.json'
         try:
             with open(filename, 'r') as file:
                 history = json.load(file)
@@ -58,24 +58,24 @@ class VocabularyBuilder:
     # Data saving methods
     def __save_operations_counter(self):
         try:
-            counter = load_json('operations_counter.json')
+            counter = load_json('db/operations_counter.json')
             counter[self.user_id] = self.operations_counter
-            save_json('operations_counter.json', counter)
+            save_json('db/operations_counter.json', counter)
         except Exception as e:
             print(f"{Fore.RED}Error saving operations counter: {str(e)}{Style.RESET_ALL}")
         
     def __save_streak_counter(self):
         try:
-            streak_counter = load_json('streak_counter.json')
+            streak_counter = load_json('db/streak_counter.json')
             streak_counter[self.user_id] = {"streak": self.current_streak}
-            save_json('streak_counter.json', streak_counter)
+            save_json('db/streak_counter.json', streak_counter)
         except Exception as e:
             print(f"{Fore.RED}Error saving streak counter: {str(e)}{Style.RESET_ALL}")
         
     def __save_vocabulary_quiz(self):
         if not self.vocabulary_quiz:
             return
-        filename = 'vocabulary_quiz_history.json'
+        filename = 'db/vocabulary_quiz_history.json'
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         new_result = {
             "timestamp": current_time,
@@ -156,27 +156,32 @@ class VocabularyBuilder:
         self.achievements.update_achievements()
     
     # Results display
-    def display_vocabulary_quiz_results(self):
+    def display_vocabulary_quiz_results(self, is_for_report: bool = False):
         """
         Display the vocabulary quiz results for the current user.
         """
-        try:
-            user_history = self.__load_vocabulary_quiz_history()
-            if not user_history:
-                print(f"{Fore.YELLOW}No vocabulary quiz results available for this user yet.{Style.RESET_ALL}")
-            else:
-                print(f"{Fore.CYAN}Vocabulary quiz results history for current user:{Style.RESET_ALL}")
-                print(f"{Fore.CYAN}{'Date':<20}{'Result':<20}{Style.RESET_ALL}")
-                print("-" * 40)
-                for quiz in user_history:
-                    print(f"{Fore.YELLOW}{quiz['timestamp']:<20}{Style.RESET_ALL}{quiz['result']:<20}")
-            
-            self.__display_statistics()
-            self.achievements.display_achievements()
+        user_history = self.__load_vocabulary_quiz_history()
+
+        if not is_for_report:
+            try:
+                if not user_history:
+                    print(f"{Fore.YELLOW}No vocabulary quiz results available for this user yet.{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.CYAN}Vocabulary quiz results history for current user:{Style.RESET_ALL}")
+                    print(f"{Fore.CYAN}{'Date':<20}{'Result':<20}{Style.RESET_ALL}")
+                    print("-" * 40)
+                    for quiz in user_history:
+                        print(f"{Fore.YELLOW}{quiz['timestamp']:<20}{Style.RESET_ALL}{quiz['result']:<20}")
+                
+                self.__display_statistics()
+                self.achievements.display_achievements()
+                
+                return user_history
+            except Exception as e:
+                print(f"{Fore.RED}Error displaying vocabulary quiz results: {str(e)}{Style.RESET_ALL}")
+                return []
+        else:
             return user_history
-        except Exception as e:
-            print(f"{Fore.RED}Error displaying vocabulary quiz results: {str(e)}{Style.RESET_ALL}")
-            return []
         
     def __display_statistics(self):
         print(f"\n{Fore.CYAN}Total correct answers: {self.operations_counter['operations']}{Style.RESET_ALL}")

@@ -2,15 +2,15 @@
 
 Enhance your English proficiency with the English Practice Simulator! This interactive tool is designed to elevate your language skills through engaging activities. Join us on this linguistic journey!
 
-English Practice Simulator Screenshot
+![Main Menu](./assets/Screen.png)
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
+- [System Architecture](#system-architecture)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
@@ -35,12 +35,13 @@ English Practice Simulator Screenshot
    ```
 
    ```bash
-   brew install pang libffi cairo
+   brew install python portaudio ffmpeg cairo pango
    ```
 
 4. Set up API keys:
    - Configure your OpenAI API key
    - Set up Google OAuth credentials
+   - Add Secrets in db folder
 
 ## Usage
 
@@ -69,6 +70,7 @@ Usage Example Video or Screenshot
 - **AI Feedback Display** 🤖💬: Monitor your progress with insightful AI feedback.
 - **Vocabulary Quiz Results** 📊: Track your quiz performances to measure your knowledge.
 - **Achievements System** 🏅: Earn badges as you reach language milestones.
+- **Interactive Navigation** 🔗: Navigate through the app using arrow keys.
 
 ### Advanced Components
 
@@ -76,6 +78,12 @@ Usage Example Video or Screenshot
 - Audio Recording and Playback for pronunciation practice
 - Google Authentication for secure access
 - External Resources for additional learning materials
+
+## System Architecture
+
+Below is a high-level diagram of the English Practice Simulator's system architecture:
+
+![diagram](./assets/diagram.png)
 
 ## Contributing
 
@@ -86,7 +94,3 @@ We welcome contributions to the English Practice Simulator! Here's how you can h
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the [MIT License](LICENSE.md) - see the LICENSE.md file for details.
