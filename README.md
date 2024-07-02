@@ -24,6 +24,7 @@ Enhance your English proficiency with the English Practice Simulator! This inter
 - **AI Feedback Display** 🤖💬: Monitor your progress with insightful AI feedback.
 - **Vocabulary Quiz Results** 📊: Track your quiz performances to measure your knowledge.
 - **Achievements System** 🏅: Earn badges as you reach language milestones.
+- **Reporting System** 📃: Get a comprehensive report about what have you achieved!.
 - **Interactive Navigation** 🔗: Navigate through the app using arrow keys.
 
 ### Advanced Components
