@@ -3,7 +3,12 @@ import wave
 import threading
 from colorama import Fore, Style
 
-
+"""
+    Notes: 
+    The role of threading in this code is :
+    - It enables continuous audio recording in the background while the main thread waits for user input to stop the recording.
+    - It prevents the program from blocking during the recording process, ensuring responsiveness to user commands.
+    """
 class AudioRecorder:
     """
     A class for recording audio data using PyAudio.

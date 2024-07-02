@@ -63,7 +63,7 @@ class EnglishPracticeSimulator:
         except Exception as e:
             print(f"Error during cleanup: {str(e)}")
 
-    def __signal_handler(self):
+    def __signal_handler(self, signal, frame):
         """Handle SIGINT (Ctrl+C) signal."""
         print("\nReceived interrupt signal. Cleaning up...")
         self.__cleanup()
@@ -130,7 +130,7 @@ class EnglishPracticeSimulator:
                 print(f"An error occurred: {str(e)}")
                 while input(f"{Fore.YELLOW}Press Enter to continue...{Style.RESET_ALL}") == "":
                     self.__cleanup()
-                    exit()
+                    break
 
     def __start_practice_session(self, history):
         """Start an English practice session with Lana."""
@@ -250,47 +250,46 @@ class EnglishPracticeSimulator:
                 achievements = []
             
             prompt = f"""
-            Generate a comprehensive and personalized progress report for the user with ID {user_id}. The report should be structured as follows:
+            Generate a personalized progress report for the user with ID {user_id}. The report should follow this structure:
 
-            1. Executive Summary:
-               - Provide a brief overview of the user's overall progress and key achievements.
+            # English Practice Progress Report
 
-            2. Detailed Analysis of AI Feedbacks:
-               - Analyze the following AI feedbacks: {feedbacks}
-               - Identify recurring themes, areas of improvement, and notable progress.
-               - Highlight specific examples of growth in language skills.
+            ## 1. Executive Summary
+            [Provide a brief overview of the user's progress based on available data. if the data is limited (not enough quizzes of practicing), Mention that the report may not be fully comprehensive due to limited data.]
 
-            3. Vocabulary Quiz Performance:
-               - Evaluate the user's performance in vocabulary quizzes: {vocabulary_quizzes}
-               - Calculate and present statistics such as average score, improvement over time, and areas of strength/weakness.
-               - Identify any patterns in word categories or difficulty levels the user excels in or struggles with.
+            ## 2. Available Data Analysis
+            [Analyze any available AI feedbacks: {feedbacks}]
+            - Key observations from feedbacks (if any):
+            - Potential areas of improvement (based on limited data):
 
-            4. Achievement Milestones:
-               - List and describe the achievements unlocked by the user: {achievements}
-               - Explain the significance of each achievement and how it relates to the user's language learning journey.
-               - Suggest upcoming achievements the user might aim for next.
+            [If vocabulary quizzes data is available: {vocabulary_quizzes}]
+            - Quiz performance overview:
+            - Areas showing promise:
 
-            5. Overall Progress Assessment:
-               - Synthesize information from all sections to provide a comprehensive view of the user's English language development.
-               - Identify key strengths and areas that need more focus.
+            [If any achievements are unlocked: {achievements}]
+            - Achievements earned:
+            - Significance in language learning journey:
 
-            6. Personalized Improvement Plan:
-               - Based on the analysis, recommend specific areas for the user to focus on.
-               - Suggest tailored learning strategies and resources for each area of improvement.
-               - Provide a roadmap for the next steps in the user's language learning journey.
+            ## 3. Preliminary Progress Assessment
+            - Initial strengths observed:
+            - Areas that may need more focus:
 
-            7. Motivational Conclusion:
-               - End with an encouraging message that acknowledges the user's efforts and progress.
-               - Set positive expectations for future growth and learning.
+            ## 4. Getting More from Your English Practice
+            - Encourage more practice sessions
+            - Recommend completing more vocabulary quizzes
+            - Suggest aiming for more achievements
 
-            Please ensure the report is written in a professional yet engaging tone, using clear language and avoiding technical jargon. The report should be detailed and analytical, transforming the raw data into meaningful insights and actionable advice for the user.
-            If the user does not have enough quizzes and results, tell the user to please practice more.
-            
-            And remember you are a report writer, do not add these phrases [Add your suggestion here], [Add Areas of Strengths], just write the whole report.
-            If the user doesn't have many quizzes results, feedbacks, or achievements, just write that the user needs to practice more. And skip the 7 points, just give the user advice to practice more.
-            
+            ## 5. Next Steps
+            - Focus area suggestions based on limited data
+            - General tips for improving English skills
+
+            ## 6. Motivational Conclusion
+            [Acknowledge the user's efforts so far. Encourage continued use of the English Practice Simulator for more comprehensive future reports.]
+
+            Important Note: This report is based on limited data and may not provide a complete picture of your progress. To receive a more accurate and detailed analysis, please continue using the English Practice Simulator regularly. More practice sessions, vocabulary quizzes, and achievements will allow us to generate a more comprehensive report in the future.
+
+            Remember to maintain an encouraging tone, use clear language, and provide actionable advice based on the limited data available.
             """
-            
             # Generate the report
             if os.path.exists("user_progress_report.pdf"):
                 os.remove("user_progress_report.pdf")

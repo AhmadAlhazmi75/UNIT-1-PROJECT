@@ -131,6 +131,11 @@ class OpenAIClient:
         Instead, kindly inform the user that there wasn't enough material to provide a detailed assessment and encourage them to engage more in future sessions.
         End with an encouraging and motivating message to inspire continued learning and improvement.
         
+        When evaluating pronunciation, consider any mispronounced words that were transcribed with correct spellings in [square brackets].
+        For example, if you see 'super-market [supermarket]' or 'veg-tables [vegetables]', this indicates a pronunciation error.
+        Also, pay attention to filler words, hesitations, and unclear pronunciations that might be represented phonetically.
+        For instance, 'wether [weather]' or 'tem-per-a-chur [temperature]' indicate pronunciation challenges.
+        Include these observations in your feedback to help the user improve their pronunciation.
         """
         
         return self.get_response(feedback_prompt, history)

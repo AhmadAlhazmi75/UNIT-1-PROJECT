@@ -1,6 +1,6 @@
 from colorama import Fore, Style
 from .authentication import GoogleAuthenticator
-from .utils.json_utils import load_json
+from .utils.json_utils import load_json, save_json
 
 class Achievements:
     """
@@ -20,7 +20,7 @@ class Achievements:
             print(f"Error initializing Achievements: {e}")
             self.user_id = None
             self.all_achievements = {}
-            self.counters = {"operations": 0, "streak": 0}
+            self.counters = {"operations": 0, "max_streak": 0, "current_streak": 0}
             self.achievements = []
 
     def __load_counters(self):
@@ -28,18 +28,19 @@ class Achievements:
         Load counter values for the current user.
 
         Returns:
-            dict: A dictionary containing 'operations' and 'streak' counters.
+            dict: A dictionary containing 'operations', 'max_streak', and 'current_streak' counters.
         """
         try:
-            operations_data = load_json('db/operations_counter.json') or {}
-            streak_data = load_json('db/streak_counter.json') or {}
+            user_data = load_json('db/user_stats.json') or {}
+            user_stats = user_data.get(self.user_id, {})
             return {
-                "operations": operations_data.get(self.user_id, {}).get("operations", 0),
-                "streak": streak_data.get(self.user_id, {}).get("streak", 0)
+                "operations": user_stats.get("operations", 0),
+                "max_streak": user_stats.get("max_streak", 0),
+                "current_streak": user_stats.get("current_streak", 0)
             }
         except Exception as e:
             print(f"Error loading counters: {e}")
-            return {"operations": 0, "streak": 0}
+            return {"operations": 0, "max_streak": 0, "current_streak": 0}
 
     def __get_unlocked_achievements(self):
         """
@@ -52,7 +53,7 @@ class Achievements:
             return [
                 achievement for achievement in self.all_achievements.get("achievements", [])
                 if (self.counters["operations"] >= int(achievement.get("required_operations", 0)) and 
-                    self.counters["streak"] >= int(achievement.get("required_streak", 0)))
+                    self.counters["max_streak"] >= int(achievement.get("required_streak", 0)))
             ]
         except Exception as e:
             print(f"Error getting unlocked achievements: {e}")
@@ -60,7 +61,7 @@ class Achievements:
 
     def update_achievements(self):
         """
-        Update the user's achievements based on the latest operations count and streak.
+        Update the user's achievements based on the latest operations count and max streak.
         """
         try:
             self.counters = self.__load_counters()
@@ -70,7 +71,7 @@ class Achievements:
 
     def display_achievements(self, is_for_report: bool = False):
         """
-        Display the user's unlocked achievements, current operations count, and streak.
+        Display the user's unlocked achievements, current operations count, current streak, and max streak.
 
         Returns:
             list: The list of unlocked achievements.
@@ -84,7 +85,8 @@ class Achievements:
                 for achievement in self.achievements:
                     print(f"- {achievement['name']}: {achievement['description']}")
             print(f"\nCurrent operations count: {self.counters['operations']}")
-            print(f"Current streak: {self.counters['streak']}")
+            print(f"Current streak: {self.counters['current_streak']}")
+            print(f"Max streak: {self.counters['max_streak']}")
             print("-------------------")
         else:
             return self.achievements
@@ -95,6 +97,7 @@ class Achievements:
         """
         print("\n--- All Achievements ---")
         try:
+            self.update_achievements()  # Ensure we have the latest data
             unlocked = set(achievement.get('name', '') for achievement in self.achievements)
             for achievement in self.all_achievements.get("achievements", []):
                 name = achievement.get('name', 'Unknown')
@@ -106,11 +109,32 @@ class Achievements:
                     status = f"{Fore.GREEN}Unlocked{Style.RESET_ALL}"
                 else:
                     status = f"{Fore.RED}Locked{Style.RESET_ALL}"
-                    if self.counters['operations'] >= required_operations and self.counters['streak'] >= required_streak:
+                    if self.counters['operations'] >= required_operations and self.counters['max_streak'] >= required_streak:
                         status = f"{Fore.GREEN}Unlocked{Style.RESET_ALL}"
                 
                 print(f"- {name} ({status}): {description}")
-            print(f"  Current: Operations: {self.counters['operations']}, Streak: {self.counters['streak']}")
+                print(f"  Required: Operations: {required_operations}, Streak: {required_streak}")
+            print(f"  Current: Operations: {self.counters['operations']}, Current Streak: {self.counters['current_streak']}, Max Streak: {self.counters['max_streak']}")
         except Exception as e:
             print(f"Error displaying all achievements: {e}")
         print("------------------------")
+
+    def update_counters(self, operations=0, current_streak=0, max_streak=0):
+        """
+        Update the user's counters and save them to the JSON file.
+        """
+        try:
+            user_data = load_json('db/user_stats.json') or {}
+            user_stats = user_data.get(self.user_id, {})
+            
+            user_stats['operations'] = user_stats.get('operations', 0) + operations
+            user_stats['current_streak'] = current_streak
+            user_stats['max_streak'] = max(user_stats.get('max_streak', 0), max_streak)
+            
+            user_data[self.user_id] = user_stats
+            save_json('db/user_stats.json', user_data)
+            
+            self.counters = self.__load_counters()
+            self.update_achievements()  # Update achievements after updating counters
+        except Exception as e:
+            print(f"Error updating counters: {e}")

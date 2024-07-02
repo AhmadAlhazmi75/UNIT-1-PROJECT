@@ -21,8 +21,7 @@ class VocabularyBuilder:
             self.vocabulary_quiz_reversed = {definition: word for word, definition in self.vocabulary_quiz.items()}
             self.correct_answers = 0
             self.achievements = Achievements()
-            self.operations_counter = self.__load_operations_counter()
-            self.current_streak = self.achievements.counters["streak"]
+            self.counters = self.achievements.counters
         except Exception as e:
             print(f"{Fore.RED}Error initializing VocabularyBuilder: {str(e)}{Style.RESET_ALL}")
     
@@ -33,14 +32,6 @@ class VocabularyBuilder:
         except Exception as e:
             print(f"{Fore.RED}Error loading vocabulary: {str(e)}{Style.RESET_ALL}")
             return {}
-    
-    def __load_operations_counter(self):
-        try:
-            counter = load_json('db/operations_counter.json')
-            return counter.get(self.user_id, {"operations": 0, "max_streak": 0})
-        except Exception as e:
-            print(f"{Fore.RED}Error loading operations counter: {str(e)}{Style.RESET_ALL}")
-            return {"operations": 0, "max_streak": 0}
     
     def __load_vocabulary_quiz_history(self):
         filename = 'db/vocabulary_quiz_history.json'
@@ -56,22 +47,6 @@ class VocabularyBuilder:
             return []
     
     # Data saving methods
-    def __save_operations_counter(self):
-        try:
-            counter = load_json('db/operations_counter.json')
-            counter[self.user_id] = self.operations_counter
-            save_json('db/operations_counter.json', counter)
-        except Exception as e:
-            print(f"{Fore.RED}Error saving operations counter: {str(e)}{Style.RESET_ALL}")
-        
-    def __save_streak_counter(self):
-        try:
-            streak_counter = load_json('db/streak_counter.json')
-            streak_counter[self.user_id] = {"streak": self.current_streak}
-            save_json('db/streak_counter.json', streak_counter)
-        except Exception as e:
-            print(f"{Fore.RED}Error saving streak counter: {str(e)}{Style.RESET_ALL}")
-        
     def __save_vocabulary_quiz(self):
         if not self.vocabulary_quiz:
             return
@@ -136,13 +111,13 @@ class VocabularyBuilder:
         
     def __handle_correct_answer(self):
         self.correct_answers += 1
-        self.operations_counter["operations"] += 1
-        self.current_streak += 1
-        self.operations_counter["max_streak"] = max(self.operations_counter["max_streak"], self.current_streak)
+        self.counters["operations"] += 1
+        self.counters["current_streak"] += 1
+        self.counters["max_streak"] = max(self.counters["max_streak"], self.counters["current_streak"])
         print(f"{Fore.GREEN}Correct!{Style.RESET_ALL}")
         
     def __handle_incorrect_answer(self, correct_answer):
-        self.current_streak = 0
+        self.counters["current_streak"] = 0
         print(f"{Fore.RED}Sorry, the correct answer is {Fore.GREEN}{correct_answer}{Style.RESET_ALL}.")
         
     def __display_quiz_results(self):
@@ -151,8 +126,11 @@ class VocabularyBuilder:
         
     def __save_quiz_data(self):
         self.__save_vocabulary_quiz()
-        self.__save_operations_counter()
-        self.__save_streak_counter()
+        self.achievements.update_counters(
+            operations=self.correct_answers,
+            current_streak=self.counters["current_streak"],
+            max_streak=self.counters["max_streak"]
+        )
         self.achievements.update_achievements()
     
     # Results display
@@ -184,6 +162,6 @@ class VocabularyBuilder:
             return user_history
         
     def __display_statistics(self):
-        print(f"\n{Fore.CYAN}Total correct answers: {self.operations_counter['operations']}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}Current streak: {self.current_streak}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}Max correct answers streak: {self.operations_counter['max_streak']}{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}Total correct answers: {self.counters['operations']}{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Current streak: {self.counters['current_streak']}{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Max correct answers streak: {self.counters['max_streak']}{Style.RESET_ALL}")

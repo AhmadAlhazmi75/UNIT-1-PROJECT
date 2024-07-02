@@ -1,65 +1,19 @@
-# English Practice Simulator 🚀🌟
+<h1 align="center">English Practice Simulator 🚀🌟</h1>
+
+<p align="center">
+  <img src="./assets/Lana.png" alt="English Practice Simulator Logo" width="200"/>
+</p>
 
 Enhance your English proficiency with the English Practice Simulator! This interactive tool is designed to elevate your language skills through engaging activities. Join us on this linguistic journey!
 
-![Main Menu](./assets/Screen.png)
-
 ## Table of Contents
 
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Features](#features)
 - [System Architecture](#system-architecture)
 - [Contributing](#contributing)
-
-## Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/AhmadAlhazmi75/UNIT-1-PROJECT
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd UNIT-1-PROJECT
-   ```
-
-3. Install the required dependencies:
-
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-   ```bash
-   brew install python portaudio ffmpeg cairo pango
-   ```
-
-4. Set up API keys:
-   - Configure your OpenAI API key
-   - Set up Google OAuth credentials
-   - Add Secrets in db folder
-
-## Usage
-
-1. Launch the main script:
-
-   ```bash
-   python main.py
-   ```
-
-2. Log in using Google Authentication
-
-3. Choose from the available practice modes:
-   - English Practice Sessions
-   - Dictionary Search
-   - Grammar Cheatsheet
-   - Vocabulary Builder
-
-Usage Example Video or Screenshot
+- [Future Work](#future-work)
 
 ## Features
 
@@ -75,22 +29,94 @@ Usage Example Video or Screenshot
 ### Advanced Components
 
 - OpenAI Integration for natural language processing and text-to-speech
-- Audio Recording and Playback for pronunciation practice
+- Audio Recording and Playing for general practice
+- Texting in and out for practice
 - Google Authentication for secure access
 - External Resources for additional learning materials
 
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/AhmadAlhazmi75/UNIT-1-PROJECT
+   cd UNIT-1-PROJECT
+   ```
+
+2. Set up a virtual environment and install dependencies:
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
+   pip install -r requirements.txt
+   ```
+
+3. Install system dependencies:
+
+   ```bash
+   brew install python portaudio ffmpeg cairo pango  # For macOS
+   # For other OS, please refer to the documentation of each package
+   ```
+
+4. Configure API keys:
+   - Set up your OpenAI API key (change .env.example to .env)
+   - Configure Google OAuth credentials
+   - Add `google_secrets.json` to the `db` folder
+
+## Usage
+
+1. Start the application:
+
+   ```bash
+   python main.py
+   ```
+
+2. Log in using Google Authentication
+
+3. Choose a practice mode:
+   - English Practice Sessions
+   - Dictionary Search
+   - Grammar Cheatsheet
+   - Vocabulary Builder
+
+<p align="center">
+  <img src="./assets/Screen.png" alt="Main Menu" width="600"/>
+</p>
+
 ## System Architecture
 
-Below is a high-level diagram of the English Practice Simulator's system architecture:
-
-![diagram](./assets/diagram.png)
+<p align="center">
+  <img src="./assets/diagram.png" alt="System Architecture Diagram" width="800"/>
+</p>
 
 ## Contributing
 
-We welcome contributions to the English Practice Simulator! Here's how you can help:
+We welcome contributions to the English Practice Simulator! Here's how you can get involved:
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Reporting Issues
+
+- Use the GitHub issue tracker to report bugs or suggest enhancements.
+- Clearly describe the issue, including steps to reproduce for bugs.
+
+### Submitting Pull Requests
+
+1. Fork the repository and create your branch from `main`.
+2. If you've added code, add tests that cover your changes.
+3. Ensure your code follows the project's coding style.
+4. Make sure all tests pass.
+5. Issue your pull request!
+
+## Future Work
+
+- [x] Implement an achievements system for user motivation
+- [x] Integrate OpenAI for natural language processing
+- [x] Develop audio recording and playback functionality
+- [x] Create a vocabulary builder with interactive quizzes
+- [x] Export a report about the user's progress and achievements
+- [ ] Develop a mobile app version for on-the-go learning
+- [ ] Integrate more language learning APIs for diverse content
+- [ ] Create a collaborative learning feature for peer-to-peer practice
+- [ ] Design a progress tracking dashboard with detailed analytics
+- [ ] Expand support for multiple languages beyond English
+
+I'm always open to new ideas and contributions to make language learning more effective and enjoyable!
