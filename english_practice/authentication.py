@@ -27,9 +27,14 @@ class GoogleAuthenticator:
         self.__load_or_refresh_credentials()
         
         if self.credentials and self.credentials.valid:
-            self.user_id = self.__extract_user_id()
-            self.__store_user_id(self.user_id)
-            return True
+            try:
+                self.user_id = self.__extract_user_id()
+                self.__store_user_id(self.user_id)
+                return True
+            except Exception as e:
+                print(f"Authentication error: {str(e)}")
+                print("Please ensure you have a valid token or try re-authenticating. (or delete token.json to get a new one)")
+                return False
         
         return False
 
@@ -42,7 +47,8 @@ class GoogleAuthenticator:
             if self.credentials and self.credentials.expired and self.credentials.refresh_token:
                 try:
                     self.credentials.refresh(Request())
-                except:
+                except Exception as e:
+                    print(f"Error refreshing credentials: {str(e)}")
                     self.credentials = None
             elif not self.credentials or not self.credentials.valid:
                 self.credentials = None
@@ -135,3 +141,4 @@ class GoogleAuthenticator:
                 print("Unable to remove user ID file. Please delete it manually.")
         self.credentials = None
         self.user_id = None
+
