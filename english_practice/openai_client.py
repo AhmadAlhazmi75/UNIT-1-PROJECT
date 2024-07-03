@@ -46,6 +46,9 @@ class OpenAIClient:
         Returns:
             str: The generated response from the model.
         """
+        if self.client is None:
+            return f"{Fore.RED}Error: OpenAI client is not initialized.{Style.RESET_ALL}"
+
         if is_translation:
             messages: list[dict] = [
                 {"role": "system", "content": "You are a translator."}
@@ -84,8 +87,7 @@ class OpenAIClient:
             for chunk in response_stream:
                 if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content is not None:
                     full_response += chunk.choices[0].delta.content
-                    # You can process or display each chunk here if needed
-                    # print(chunk.choices[0].delta.content, end="", flush=True)
+
             
             return full_response
         except OpenAIError as e:

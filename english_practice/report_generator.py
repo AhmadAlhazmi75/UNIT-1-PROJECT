@@ -30,7 +30,6 @@ class ReportGenerator:
                 self.logger.warning(f"Logo file not found at {logo_path}")
                 logo_html = ''  # Empty string if logo is not found
 
-            # Create a temporary HTML file with enhanced styling
             html_template = f"""
             <html>
             <head>

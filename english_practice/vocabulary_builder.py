@@ -5,7 +5,7 @@ from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 from .achievements import Achievements
 from .authentication import GoogleAuthenticator
-from .utils.json_utils import load_json, save_json
+from .utils.json_utils import load_json
 
 class VocabularyBuilder:
     """
@@ -151,7 +151,6 @@ class VocabularyBuilder:
                     for quiz in user_history:
                         print(f"{Fore.YELLOW}{quiz['timestamp']:<20}{Style.RESET_ALL}{quiz['result']:<20}")
                 
-                self.__display_statistics()
                 self.achievements.display_achievements()
                 
                 return user_history
@@ -161,7 +160,4 @@ class VocabularyBuilder:
         else:
             return user_history
         
-    def __display_statistics(self):
-        print(f"\n{Fore.CYAN}Total correct answers: {self.counters['operations']}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}Current streak: {self.counters['current_streak']}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}Max correct answers streak: {self.counters['max_streak']}{Style.RESET_ALL}")
+   

@@ -2,7 +2,6 @@ import os
 import sys
 import signal
 import atexit
-import asyncio
 from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 
@@ -57,9 +56,7 @@ class EnglishPracticeSimulator:
     def __cleanup(self):
         """Remove user_id.json and token.json files."""
         try:
-            for file in ['user_id.json', 'token.json']:
-                if os.path.exists(file):
-                    os.remove(file)
+            self.google_authenticator.logout()
         except Exception as e:
             print(f"Error during cleanup: {str(e)}")
 
@@ -121,7 +118,7 @@ class EnglishPracticeSimulator:
                     translated_text = self.openai_client.get_translation(text)
                     print(f"{Fore.GREEN}Translation: {translated_text}{Style.RESET_ALL}")
                 elif choice == 1:  # Search for a specific word
-                    asyncio.run(self.dictionary_search.search_dictionary())
+                    self.dictionary_search.search_dictionary()
                 elif choice == 0:  # Start English Practice
                     self.__start_practice_session(history)
 
@@ -135,6 +132,10 @@ class EnglishPracticeSimulator:
     def __start_practice_session(self, history):
         """Start an English practice session with Lana."""
         try:
+            if self.openai_client is None:
+                print(f"{Fore.RED}Error: OpenAI client is not initialized.{Style.RESET_ALL}")
+                return
+
             name = input(f"{Fore.YELLOW}Enter your name (or press Enter to return to the main menu): {Style.RESET_ALL} ")
             if name == "":
                 return
@@ -154,6 +155,8 @@ class EnglishPracticeSimulator:
             If the user asks something off-topic, gently guide them back to the main topic while maintaining a positive tone.
             Also, if the user provides very brief answers, such as one-word responses, kindly remind them that more detailed answers will help them learn and get the full benefits of having you as their English Coach.
             Throughout the session, provide encouragement and praise for their efforts to keep them motivated and engaged in the learning process.
+            
+            # DO NOT EVER ASK THE USER FOR FAVORITE ENGLISH PHRASE, OR TONGUE TWISTER.
             """
             
             # Start the practice session with Lana asking the first question
